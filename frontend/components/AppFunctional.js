@@ -4,11 +4,10 @@ import { response } from 'express'
 import React, { useState } from 'react'
 
 
-// önerilen başlangıç stateleri
 const initialMessage = ''
 const initialEmail = ''
 const initialSteps = 0
-const initialIndex = 4 //  "B" nin bulunduğu index
+const initialIndex = 4 
 
 export default function AppFunctional(props) {
   const [index, setIndex] = useState(initialIndex)
@@ -17,29 +16,21 @@ export default function AppFunctional(props) {
   const[steps, setSteps] = useState(initialSteps)
 
 
-  // AŞAĞIDAKİ HELPERLAR SADECE ÖNERİDİR.
-  // Bunları silip kendi mantığınızla sıfırdan geliştirebilirsiniz.
+  
 
   function getXY() {
-    // Koordinatları izlemek için bir state e sahip olmak gerekli değildir.
-    // Bunları hesaplayabilmek için "B" nin hangi indexte olduğunu bilmek yeterlidir.
-    const coordinates = [
-    "1, 1", "2, 1", "3, 1",
-    "1, 2", "2, 2", "3, 2",
-    "1, 3", "2, 3", "3, 3"];
+   
+    const coordinates = [(index % 3) + 1, Math.floor(index / 3) + 1]
 
-    return coordinates[index];
+    return coordinates;
+
   }
 
   function getXYMesaj() {
-    // Kullanıcı için "Koordinatlar (2, 2)" mesajını izlemek için bir state'in olması gerekli değildir.
-    // Koordinatları almak için yukarıdaki "getXY" helperını ve ardından "getXYMesaj"ı kullanabilirsiniz.
-    // tamamen oluşturulmuş stringi döndürür.
-    return ` Koordinantlar ${getXY(index)} `
+   return ` Koordinantlar ${getXY()[0]} ${getXY()[1]} `
   }
 
   function reset() {
-    // Tüm stateleri başlangıç ​​değerlerine sıfırlamak için bu helperı kullanın.
     setIndex(initialIndex);
     setMessage(initialMessage);
     setEmail(initialEmail);
@@ -47,17 +38,12 @@ export default function AppFunctional(props) {
   }
 
   function sonrakiIndex(yon) {
-    // Bu helper bir yön ("sol", "yukarı", vb.) alır ve "B" nin bir sonraki indeksinin ne olduğunu hesaplar.
-    // Gridin kenarına ulaşıldığında başka gidecek yer olmadığı için,
-    // şu anki indeksi değiştirmemeli.
     setIndex(yon)
     setSteps(steps + 1);
     setMessage(initialMessage)
   }
 
   function ilerle(e) {
-    // Bu event handler, "B" için yeni bir dizin elde etmek üzere yukarıdaki yardımcıyı kullanabilir,
-    // ve buna göre state i değiştirir.
     const tus = e.target.id;
 
     if(tus === 'left'){
@@ -96,18 +82,16 @@ export default function AppFunctional(props) {
   }
 
   function onChange(e) {
-    // inputun değerini güncellemek için bunu kullanabilirsiniz
     setEmail(e.target.value)
   }
 
   function onSubmit(e) {
-    // payloadu POST etmek için bir submit handlera da ihtiyacınız var.
     e.preventDefault()
-    
+
     axios
     .post("http://localhost:9000/api/result",{ 
-      x: getXY(), 
-      y: getXY(), 
+      x: getXY()[0], 
+      y: getXY()[1], 
       steps: steps, 
       email: email,
     })
@@ -121,19 +105,20 @@ export default function AppFunctional(props) {
       console.log(error);
       setMessage(error.response.data.message)
     })
+
   }
 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">{getXYMesaj()}</h3>
+        <h3 id="coordinates">{getXYMesaj}</h3>
         <h3 id="steps">{steps} kere ilerlediniz</h3>
       </div>
       <div id="grid">
         {
           [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
             <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
-              {idx === index ? '*_*' : null}
+              {idx === index ? 'B' : null}
             </div>
           ))
         }
